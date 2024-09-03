@@ -72,7 +72,7 @@ func ErrValidation(err error) (result domain.ErrorData) {
 	result.Status = "error"
 	result.Code = ErrCodeInvalidInput
 	result.Message = "Invalid data input"
-	result.Errors = err
+	result.Errors = err.Error()
 	return
 }
 
@@ -91,7 +91,7 @@ func ErrGetData(err error) (result domain.ErrorData) {
 		Status:  "error",
 		Code:    ErrCodeGet,
 		Message: "Failed get data",
-		Errors:  err,
+		Errors:  err.Error(),
 	}
 
 	return
@@ -123,7 +123,7 @@ func ErrHashing(err error) (result domain.ErrorData) {
 		Status:  "error",
 		Code:    ErrCodeHashing,
 		Message: "Internal errors",
-		Errors:  err,
+		Errors:  err.Error(),
 	}
 
 	return
@@ -134,7 +134,7 @@ func ErrInternal(code int, err error) (result domain.ErrorData) {
 		Status:  "error",
 		Code:    code,
 		Message: "Internal errors",
-		Errors:  err,
+		Errors:  err.Error(),
 	}
 
 	return

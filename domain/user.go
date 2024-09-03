@@ -12,5 +12,5 @@ type User struct {
 type Login struct {
 	Email    string `json:"email" gorm:"column:email"`
 	Username string `json:"username" gorm:"column:username"`
-	Password string `json:"-" gorm:"column:password"`
+	Password string `json:"password" gorm:"column:password"`
 }

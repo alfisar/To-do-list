@@ -16,6 +16,7 @@ import (
 	"todolist/internal/errorhandler"
 	validations "todolist/internal/validation"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/valyala/fasthttp"
 	"gorm.io/gorm"
 )
@@ -112,7 +113,7 @@ func (s *authService) Login(ctx context.Context, data domain.Login) (token strin
 	key := "LOGIN_" + data.Username
 
 	result, errData := s.repoRedis.Get(ctx, config.AppConfig.DBRedis[consts.Token], key)
-	if errData != nil {
+	if errData != nil && !strings.Contains(errData.Error(), string(redis.Nil)) {
 		log.Printf("Error get data user redis on func login : %s", errData.Error())
 
 		err = errorhandler.ErrGetData(errData)
@@ -139,12 +140,12 @@ func (s *authService) Login(ctx context.Context, data domain.Login) (token strin
 	}
 
 	resultUser, errData := s.repo.Get(config.AppConfig.DBSql, where)
-	if errData != nil && errData != gorm.ErrRecordNotFound {
+	if errData != nil && !strings.Contains(errData.Error(), gorm.ErrRecordNotFound.Error()) {
 		log.Printf("Error get data user on func login : %s", errData.Error())
 
 		err = errorhandler.ErrGetData(errData)
 		return
-	} else if errData == gorm.ErrRecordNotFound {
+	} else if errData != nil && strings.Contains(errData.Error(), gorm.ErrRecordNotFound.Error()) {
 		err = errorhandler.ErrInvalidLogic(errorhandler.ErrCodeInvalidLogicBisnis, errorhandler.ErrMsgLoginFailed)
 		return
 	}

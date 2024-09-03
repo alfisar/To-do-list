@@ -18,4 +18,6 @@ const (
 
 	// config response message
 	SuccessRegister string = "successfully register"
+
+	SuccessLogin string = "successfully login"
 )

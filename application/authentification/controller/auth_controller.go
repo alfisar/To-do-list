@@ -1,11 +1,9 @@
 package controller
 
 import (
-	"log"
 	"todolist/application/authentification/service"
 	"todolist/domain"
 	"todolist/internal/consts"
-	"todolist/internal/errorhandler"
 	"todolist/internal/response"
 
 	"github.com/gofiber/fiber/v2"
@@ -22,23 +20,30 @@ func NewAuthController(serv service.AuthServiceContract) *authController {
 }
 
 func (c *authController) Registration(ctx *fiber.Ctx) error {
-	request := domain.User{}
-	errData := ctx.BodyParser(&request)
-	if errData != nil {
-		log.Printf("Error parsing data request on controller registration : %s", errData.Error())
-		err := errorhandler.ErrValidation(errData)
-		response.WriteResponse(ctx, response.Response{}, err, err.Code)
-		return nil
-	}
+	request := ctx.Locals("validatedData").(domain.User)
 
 	user, err := c.serv.Registration(ctx.Context(), ctx.Request(), request)
 	if err.Code != 0 {
-		response.WriteResponse(ctx, response.Response{}, err, err.Code)
+		response.WriteResponse(ctx, response.Response{}, err, 400)
 		return nil
 	}
 
 	user.Password = ""
 	resp := response.ResponseSuccess(user, consts.SuccessRegister)
+	response.WriteResponse(ctx, resp, err, err.Code)
+	return nil
+}
+
+func (c *authController) Login(ctx *fiber.Ctx) error {
+	request := ctx.Locals("validatedData").(domain.Login)
+
+	token, err := c.serv.Login(ctx.Context(), request)
+	if err.Code != 0 {
+		response.WriteResponse(ctx, response.Response{}, err, 400)
+		return nil
+	}
+
+	resp := response.ResponseSuccessWithToken(nil, consts.SuccessLogin, token)
 	response.WriteResponse(ctx, resp, err, err.Code)
 	return nil
 }
