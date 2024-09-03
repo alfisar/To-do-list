@@ -17,3 +17,11 @@ func ValidationDataUser(data domain.User) (err error) {
 	)
 	return
 }
+
+func ValidationLogin(data domain.Login) (err error) {
+	err = validation.ValidateStruct(
+		&data,
+		validation.Field(&data.Password, validator.Required, validator.AlphanumericSimbols),
+	)
+	return
+}

@@ -2,6 +2,9 @@ package router
 
 import (
 	"todolist/application/authentification/controller"
+	"todolist/helper"
+	"todolist/internal/handler"
+	"todolist/internal/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -17,5 +20,7 @@ func NewAuthRouter(authController controller.AuthControllerContract) *authRouter
 }
 
 func (obj *authRouter) authRouters(v1 fiber.Router) {
-	v1.Post("/registration", obj.Controller.Registration)
+	v1.Post("/registration", middleware.Validation(handler.HandlerRegistration, helper.ValidationDataUser), obj.Controller.Registration)
+	v1.Post("/login", middleware.Validation(handler.HandlerLogin, helper.ValidationLogin), obj.Controller.Login)
+
 }
